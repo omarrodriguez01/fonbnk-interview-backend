@@ -9,6 +9,7 @@ const port: any = process.env.PORT ?? 8080;
 connectToDatabase()
     .then(() => {
         app.use(compression());
+        app.use(cors())
         app.use("/users", usersRouter);
 
         app.listen(port, () => {
