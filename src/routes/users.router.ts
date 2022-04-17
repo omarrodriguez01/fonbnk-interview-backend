@@ -9,25 +9,9 @@ export const usersRouter = express.Router();
 
 usersRouter.use(express.json());
 
-usersRouter.get("/", async (_req: Request, res: Response) => {
-    try {
-        console.log('getting users')
-        // Call find with an empty filter object, meaning it returns all documents in the collection. Saves as Game array to take advantage of types
-        const users = await User.find({})
-
-        res.status(200).send(users);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-});
-
-
 usersRouter.post("/register", async (req: Request, res: Response) => {
     try {
-        // Get user input
         const { username, password } = req.body;
-
-        // Validate user input
         if (!(username && password)) {
             res.status(400).send("All input is required");
         }
@@ -39,8 +23,6 @@ usersRouter.post("/register", async (req: Request, res: Response) => {
         const encryptedPassword = await bcrypt.hash(password, 10);
         const user = await registerUser(username, encryptedPassword)
 
-
-        // Create token
         const token = jwt.sign(
             { user_id: user._id, username },
             process.env.TOKEN_KEY,
@@ -48,8 +30,11 @@ usersRouter.post("/register", async (req: Request, res: Response) => {
                 expiresIn: "2h",
             }
         );
+        if (user) {
+            return res.status(201).json({ token, userId: user._id });
+        }
+        return res.status(500).send('Error creating user')
 
-        res.status(201).json(token);
     } catch (err) {
         res.status(500).send('Error creating user')
         console.log(err);
@@ -59,18 +44,13 @@ usersRouter.post("/register", async (req: Request, res: Response) => {
 
 usersRouter.post("/login", async (req: Request, res: Response) => {
     try {
-        // Get user input
         const { username, password } = req.body;
-
-        // Validate user input
         if (!(username && password)) {
             res.status(400).send("All input is required");
         }
-        // Validate if user exist in our database
         const user = await User.findOne({ username });
 
         if (user && (await bcrypt.compare(password, user.password))) {
-            // Create token
             const token = jwt.sign(
                 { user_id: user._id, username },
                 process.env.TOKEN_KEY,
@@ -78,7 +58,7 @@ usersRouter.post("/login", async (req: Request, res: Response) => {
                     expiresIn: "2h",
                 }
             );
-            return res.status(201).json(token);
+            return res.status(201).json({ token, userId: user._id });
         }
         return res.status(400).send("Invalid Credentials");
     } catch (err) {
@@ -90,10 +70,10 @@ usersRouter.post("/transfer", Auth.authorize, async (req: Request, res: Response
     try {
         const body = req.body;
         const address = String(body.address)
-        const username = String(body.username)
+        const userId = String(body.id)
         const amount = String(body.amount)
 
-        await transfer(address, username, amount);
+        await transfer(address, userId, amount);
         return res.status(200).send('Succesful Transaction');
 
     } catch (error) {
@@ -104,8 +84,8 @@ usersRouter.post("/transfer", Auth.authorize, async (req: Request, res: Response
 
 usersRouter.post("/getUser", Auth.authorize, async (req: Request, res: Response) => {
     try {
-        const { username } = req.body;
-        const userInfo = await getUserInfo(username);
+        const { userId } = req.body;
+        const userInfo = await getUserInfo(userId);
         return res.status(201).json(userInfo);
     } catch (error) {
         console.error(error);

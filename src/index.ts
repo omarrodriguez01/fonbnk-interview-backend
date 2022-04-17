@@ -1,12 +1,14 @@
 import express, { Express } from "express";
 import { connectToDatabase } from "./services/database.service"
 import { usersRouter } from "./routes/users.router";
+import compression from "compression";
 
 const app: Express = express();
 const port: any = process.env.PORT ?? 8080;
 
 connectToDatabase()
     .then(() => {
+        app.use(compression());
         app.use("/users", usersRouter);
 
         app.listen(port, () => {

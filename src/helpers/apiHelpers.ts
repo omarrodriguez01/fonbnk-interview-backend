@@ -31,11 +31,11 @@ export const registerUser = async (username: string, password: string) => {
     }
 };
 
-export const getUserInfo = async (username: string) => {
+export const getUserInfo = async (userId: string) => {
     const INFURA_ID = process.env.INFURA_ID
     const provider = new ethers.providers.JsonRpcProvider(`https://rinkeby.infura.io/v3/${INFURA_ID}`);
 
-    const user = await User.findOne({ username: username })
+    const user = await User.findById(userId)
     const address = user.address
     const balance = await provider.getBalance(address);
     const etherscanProvider = new ethers.providers.EtherscanProvider('rinkeby');
@@ -64,16 +64,16 @@ export const getUserInfo = async (username: string) => {
     }
 };
 
-export const getUserPrivateKey = async (username: string): Promise<String> => {
-    const user = await User.findOne({ username: username })
+export const getUserPrivateKey = async (userId: string): Promise<String> => {
+    const user = await User.findById(userId)
     return String(user.privateKey)
 }
 
-export const transfer = async (address: string, username: string, amount: string) => {
+export const transfer = async (address: string, userId: string, amount: string) => {
     const INFURA_ID = process.env.INFURA_ID
     const provider = new ethers.providers.JsonRpcProvider(`https://rinkeby.infura.io/v3/${INFURA_ID}`);
     try {
-        const senderKey = await getUserPrivateKey(username)
+        const senderKey = await getUserPrivateKey(userId)
         // const senderKey = process.env.PRIVATE_KEY
         const wallet = new ethers.Wallet(String(senderKey), provider)
 
