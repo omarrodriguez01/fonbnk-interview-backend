@@ -39,28 +39,27 @@ export const getUserInfo = async (userId: string) => {
     const address = user.address
     const balance = await provider.getBalance(address);
     const etherscanProvider = new ethers.providers.EtherscanProvider('rinkeby');
-    const rawTransactions = await etherscanProvider.getHistory(address)
+    // const rawTransactions = await etherscanProvider.getHistory(address)
 
-    const transactions = rawTransactions.map((txn) => {
-        if (txn.to === address)
-            return {
-                type: 1,
-                amount: ethers.utils.formatEther(txn.value),
-                date: txn.timestamp,
-                address: txn.from
-            }
-        return {
-            type: 0,
-            amount: ethers.utils.formatEther(txn.value),
-            date: txn.timestamp,
-            address: txn.to
-        }
-    });
+    // const transactions = rawTransactions.map((txn) => {
+    //     if (txn.to === address)
+    //         return {
+    //             type: 1,
+    //             amount: ethers.utils.formatEther(txn.value),
+    //             date: txn.timestamp,
+    //             address: txn.from
+    //         }
+    //     return {
+    //         type: 0,
+    //         amount: ethers.utils.formatEther(txn.value),
+    //         date: txn.timestamp,
+    //         address: txn.to
+    //     }
+    // });
     return {
         user,
         address,
         balance: ethers.utils.formatEther(balance),
-        transactions
     }
 };
 
