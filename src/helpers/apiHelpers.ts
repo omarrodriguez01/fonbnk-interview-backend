@@ -39,18 +39,17 @@ export const getUserInfo = async (userId: string) => {
     const user = await User.findById(userId)
     const address = user.address
     const balance = await provider.getBalance(address);
-    const ether = ethers.utils.formatEther(balance);
+    const ether = Number(ethers.utils.formatEther(balance));
 
     const response = await axios.get('https://api.binance.com/api/v3/avgPrice?symbol=ETHBUSD');
-    const marketVal = response.data.price
-    console.log(marketVal)
+    const marketVal = Number(response.data.price)
 
-    const USD = Number(ether) * Number(marketVal)
+    const USD = ether * marketVal
     console.log(USD)
     return {
         user,
         address,
-        ether,
+        ether: ether.toFixed(6),
         USD: USD.toFixed(2)
     }
 };
@@ -79,7 +78,6 @@ export const getTransactions = async (userId: string) => {
     return {
         transactions
     }
-
 }
 
 export const getUserPrivateKey = async (userId: string): Promise<String> => {
