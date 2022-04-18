@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 import { User } from "../models/user";
-import { getUserInfo, registerUser, transfer } from "../helpers/apiHelpers";
+import { getUserInfo, registerUser, transfer, getTransactions } from "../helpers/apiHelpers";
 import * as Auth from "../middleware/auth"
 
 export const usersRouter = express.Router();
@@ -93,13 +93,13 @@ usersRouter.post("/getUser", Auth.authorize, async (req: Request, res: Response)
     }
 });
 
-// usersRouter.post("/getTransactions", Auth.authorize, async (req: Request, res: Response) => {
-//     try {
-//         const { userId } = req.body;
-//         const userInfo = await getTransactions(userId);
-//         return res.status(201).json(userInfo);
-//     } catch (error) {
-//         console.error(error);
-//         res.status(400).send(error.message);
-//     }
-// });
+usersRouter.post("/getTransactions", Auth.authorize, async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.body;
+        const transactions = await getTransactions(userId);
+        return res.status(201).json(transactions);
+    } catch (error) {
+        console.error(error);
+        res.status(400).send(error.message);
+    }
+});

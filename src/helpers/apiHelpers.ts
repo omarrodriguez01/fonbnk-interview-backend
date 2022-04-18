@@ -47,26 +47,6 @@ export const getUserInfo = async (userId: string) => {
 
     const USD = Number(ether) * Number(marketVal)
     console.log(USD)
-
-
-    // const etherscanProvider = new ethers.providers.EtherscanProvider('rinkeby');
-    // const rawTransactions = await etherscanProvider.getHistory(address)
-
-    // const transactions = rawTransactions.map((txn) => {
-    //     if (txn.to === address)
-    //         return {
-    //             type: 1,
-    //             amount: ethers.utils.formatEther(txn.value),
-    //             date: txn.timestamp,
-    //             address: txn.from
-    //         }
-    //     return {
-    //         type: 0,
-    //         amount: ethers.utils.formatEther(txn.value),
-    //         date: txn.timestamp,
-    //         address: txn.to
-    //     }
-    // });
     return {
         user,
         address,
@@ -74,6 +54,33 @@ export const getUserInfo = async (userId: string) => {
         USD: USD.toFixed(2)
     }
 };
+
+export const getTransactions = async (userId: string) => {
+    const user = await User.findById(userId)
+    const address = user.address
+    const etherscanProvider = new ethers.providers.EtherscanProvider('rinkeby');
+    const rawTransactions = await etherscanProvider.getHistory(address)
+
+    const transactions = rawTransactions.map((txn) => {
+        if (txn.to === address)
+            return {
+                type: 1,
+                amount: ethers.utils.formatEther(txn.value),
+                date: txn.timestamp,
+                address: txn.from
+            }
+        return {
+            type: 0,
+            amount: ethers.utils.formatEther(txn.value),
+            date: txn.timestamp,
+            address: txn.to
+        }
+    });
+    return {
+        transactions
+    }
+
+}
 
 export const getUserPrivateKey = async (userId: string): Promise<String> => {
     const user = await User.findById(userId)
