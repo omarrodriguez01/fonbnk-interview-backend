@@ -1,6 +1,7 @@
 import { ethers } from "ethers"
 import crypto from "crypto"
 import mongoose from "mongoose"
+import axios from "axios";
 
 import { User } from "../models/user";
 
@@ -38,7 +39,17 @@ export const getUserInfo = async (userId: string) => {
     const user = await User.findById(userId)
     const address = user.address
     const balance = await provider.getBalance(address);
-    const etherscanProvider = new ethers.providers.EtherscanProvider('rinkeby');
+    const ether = ethers.utils.formatEther(balance);
+
+    const response = await axios.get('https://api.binance.com/api/v3/avgPrice?symbol=ETHBUSD');
+    const marketVal = response.data.price
+    console.log(marketVal)
+
+    const USD = Number(ether) * Number(marketVal)
+    console.log(USD)
+
+
+    // const etherscanProvider = new ethers.providers.EtherscanProvider('rinkeby');
     // const rawTransactions = await etherscanProvider.getHistory(address)
 
     // const transactions = rawTransactions.map((txn) => {
@@ -59,7 +70,8 @@ export const getUserInfo = async (userId: string) => {
     return {
         user,
         address,
-        balance: ethers.utils.formatEther(balance),
+        ether,
+        USD: USD.toFixed(2)
     }
 };
 

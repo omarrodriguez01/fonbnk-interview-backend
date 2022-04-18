@@ -92,3 +92,14 @@ usersRouter.post("/getUser", Auth.authorize, async (req: Request, res: Response)
         res.status(400).send(error.message);
     }
 });
+
+// usersRouter.post("/getTransactions", Auth.authorize, async (req: Request, res: Response) => {
+//     try {
+//         const { userId } = req.body;
+//         const userInfo = await getTransactions(userId);
+//         return res.status(201).json(userInfo);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(400).send(error.message);
+//     }
+// });
